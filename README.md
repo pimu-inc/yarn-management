@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# けいと帳 — 毛糸在庫・作品管理アプリ
 
-## Getting Started
+編み物ユーザー向けの毛糸在庫・完成作品管理Webアプリケーションです。
+スマートフォンでの操作を前提としたモバイルファースト設計で、手持ちの毛糸や作品を手軽に記録・管理できます。
 
-First, run the development server:
+## 主な機能
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **毛糸在庫管理** — 毛糸の登録・編集、残り玉数の視覚的な表示
+- **作品管理** — 完成作品をギャラリー形式で一覧表示
+- **毛糸と作品の紐づけ** — 作品に使用した毛糸を記録
+- **参考URL管理** — 作品作成時に参考にした動画やサイトのURLを保存
+- **画像管理** — 毛糸・作品の写真をアップロード（自動リサイズ対応）
+- **ユーザー認証** — メールアドレス・パスワードによる会員登録・ログイン
+
+## 技術スタック
+
+| カテゴリ | 技術 |
+|---------|------|
+| フレームワーク | [Next.js](https://nextjs.org/) (App Router) |
+| 言語 | TypeScript |
+| スタイリング | [Tailwind CSS](https://tailwindcss.com/) |
+| バックエンド / DB / 認証 / ストレージ | [Supabase](https://supabase.com/) |
+
+## アーキテクチャ
+
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── (auth)/             # 認証ページ（ログイン・会員登録）
+│   └── (main)/             # メインページ（毛糸・作品管理）
+├── components/
+│   ├── ui/                 # 汎用UIコンポーネント
+│   └── features/           # 機能別コンポーネント
+├── lib/supabase/           # Supabase クライアント・データ操作
+├── types/                  # 型定義
+└── hooks/                  # カスタムフック
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## データモデル
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+auth.users（Supabase Auth）
+    │
+    ├── yarns（毛糸）
+    │
+    └── works（作品）
+          ├── work_yarns（使用毛糸の紐づけ）
+          └── work_reference_urls（参考URL）
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- すべてのテーブルに RLS（Row Level Security）を適用し、ユーザーごとのデータ分離を実現
 
-## Learn More
+## セットアップ
 
-To learn more about Next.js, take a look at the following resources:
+### 前提条件
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Node.js 18+
+- Supabase プロジェクト
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 手順
 
-## Deploy on Vercel
+```bash
+# 依存パッケージのインストール
+npm install
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# 環境変数の設定
+cp env.example .env.local
+# .env.local に Supabase の URL と ANON KEY を設定
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Supabase でテーブル作成
+# docs/schema.sql を Supabase SQL Editor で実行
+
+# 開発サーバー起動
+npm run dev
+```
+
+## 画面一覧
+
+| 画面 | パス | 説明 |
+|------|------|------|
+| 会員登録 | `/signup` | メール・パスワードで登録 |
+| ログイン | `/login` | ログイン |
+| 毛糸一覧 | `/yarns` | カード形式、残り玉数アイコン表示 |
+| 毛糸詳細 | `/yarns/[id]` | 全項目表示 |
+| 毛糸登録 | `/yarns/new` | 新規登録フォーム |
+| 毛糸編集 | `/yarns/[id]/edit` | 編集フォーム |
+| 作品一覧 | `/works` | 2カラムギャラリー形式 |
+| 作品詳細 | `/works/[id]` | 使用毛糸・参考URL表示 |
+| 作品登録 | `/works/new` | 新規登録フォーム |
+| 作品編集 | `/works/[id]/edit` | 編集フォーム |
+
+## ライセンス
+
+MIT
